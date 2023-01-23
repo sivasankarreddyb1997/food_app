@@ -1,42 +1,52 @@
-import React from "react";
-// import "./styles.css";
-import { useState, useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./Components/Home";
+import Cart from "./Components/Cart";
+import Navbar from "./Navbar";
+import Offers from "./Components/Offers";
+import Address from "./Components/Address";
+import Help from "./Components/Help";
+
+export const Store = createContext();
 
 const App = () => {
   const [data, setData] = useState([]);
-  const [count, setCount] = useState(0);
-  const fetchData = () => {
-    // console.log("testing the data");
-    axios.get("https://dummyjson.com/products?limit=10").then((res) => {
-      setData(res.data.products);
-    });
-  };
+  const [cartItems, setCartItems] = useState([]);
+  let [newCart, setNewCart] = useState();
+
+  // <Cart cartItems={cartItems} />;
+  // console.log(cartItems);
 
   useEffect(() => {
-    if (count % 2 === 0) {
-      fetchData();
-    } else {
-      setData([]);
-      // alert("error in API please try again");
-    }
-  }, [count]);
+    axios.get("http://localhost:3007/item").then((res) => {
+      setData(res.data);
+    });
+    // fetch("http://localhost:9000/getUsers")
+    //   .then((res) => res.json())
+    //   .then((data) => setData(data));
+    // console.log(data);
+  }, []);
 
   return (
-    <>
-      <h1>Count: {count} </h1> <br />
-      <button className="btn" onClick={() => setCount(count + 1)}>
-        Increment
-      </button>{" "}
-      &nbsp;
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-      <br />
-      {data.map((dat) => (
-        <li key={dat.id}>
-          {dat.title}-{dat.price}
-        </li>
-      ))}
-    </>
+    <div className="container">
+      <Store.Provider
+        value={[data, setData, cartItems, setCartItems, newCart, setNewCart]}
+      >
+        <BrowserRouter>
+          <Navbar />
+
+          <Routes>
+            <Route exact path="/" element={<Home />} />
+            <Route path="/Cart" element={<Cart />} />
+            <Route path="/Offers" element={<Offers />} />
+            <Route path="/Address" element={<Address />} />
+            <Route path="/Help" element={<Help />} />
+          </Routes>
+        </BrowserRouter>
+      </Store.Provider>
+    </div>
   );
 };
 
